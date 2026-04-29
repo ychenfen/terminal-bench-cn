@@ -1,0 +1,81 @@
+% terminal-bench-cn — short paper draft (NeurIPS 2026 Datasets & Benchmarks track)
+% Compile with `pdflatex main.tex` from this directory; `make pdf` from repo root also works.
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{xeCJK}        % Chinese support
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+
+\title{Terminal-Bench-CN: A Chinese-Language Slice for Evaluating LLM Coding Agents}
+\author{ychenfen \\ \texttt{2570601904@qq.com}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We introduce Terminal-Bench-CN, a Chinese-language extension of Terminal-Bench
+that evaluates coding agents on hermetic, dockerised tasks where the natural-language
+ticket is delivered in Chinese. Each task ships a parallel English mirror, enabling
+the first systematic study of cross-lingual deltas in coding-agent performance.
+On v0.1 (5 tasks), we observe that frontier agents achieve XX\% pass-rate on
+English tickets but YY\% on the Chinese ones — a ZZ-point gap concentrated in
+encoding, path-handling and instruction-following failure modes. We release the
+benchmark, the evaluation harness, and a cross-lingual delta analyzer at
+\url{https://github.com/ychenfen/terminal-bench-cn}.
+\end{abstract}
+
+\section{Introduction}
+% Motivation: Chinese is the primary work language for ~25\% of professional
+% developers; existing coding-agent benchmarks (SWE-bench, Terminal-Bench,
+% AgentBench) are English-only; translating prompts surfaces non-trivial failures.
+\input{figs/leaderboard}
+
+\section{Related Work}
+% Coding-agent benchmarks: SWE-bench (Jimenez et al.), Terminal-Bench
+% (Stanford NLP, 2025), AgentBench (Liu et al., 2023), AAMAS-2026 auto-benchmark
+% line of work; cross-lingual NLP eval: XGLUE, XTREME-R; multilingual code:
+% MBXP, Multilingual HumanEval (Athiwaratkun et al., 2023).
+
+\section{Tasks}
+The v0.1 release contains five hand-curated tasks spanning DevOps, encoding,
+JavaScript toolchain, Django web back-end and TypeScript monorepos. Each task is
+defined by:
+\begin{itemize}
+  \item \texttt{instruction.zh.md} — the Chinese ticket the agent reads
+  \item \texttt{instruction.en.md} — a manually translated English mirror
+  \item \texttt{docker/Dockerfile} — hermetic environment with the planted bug
+  \item \texttt{tests/test\_NNN.sh} — a 0/1 grader; both correctness and "no-cheating" guards
+\end{itemize}
+
+\section{Method}
+We run each agent under each language with $N=5$ samples per cell. Task scores
+are 0/1 hermetic test pass; agent scores are micro-averaged across tasks.
+We report cross-lingual delta $\Delta=p_{\rm zh}-p_{\rm en}$ with a 95\% Wilson interval
+and bucket failure logs into a coarse 8-class taxonomy
+(encoding, path/filename, dependency install, test assertion, config format,
+agent gave up, ran out of steps, nuclear bypass).
+
+\input{figs/delta_table}
+
+\section{Results}
+% Filled in by `make figures` from logs/cross_lingual_delta.json
+% Discussion of patterns: encoding tasks dominate the zh-only failures;
+% nuclear-bypass attempts higher on Chinese?
+
+\section{Limitations and Future Work}
+v0.1 is small. v0.2 will scale to 25 tasks and add traditional Chinese (zh-Hant);
+v0.3 will host a public leaderboard and accept community contributions.
+
+\section*{Acknowledgments}
+Built on top of the excellent Terminal-Bench harness.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\end{document}
